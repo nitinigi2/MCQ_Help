@@ -62,16 +62,21 @@ async def custom_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text('This is custom command')
 
 
+hello_messages = ["hi", "hello", "who are you", "what can yo do", "what can you do", "who are you", "can you help me"]
+
+
 def handle_response(text: str) -> str:
     processed: str = text.lower()
 
-    if 'hello' in processed:
-        return 'Hey there!'
+    if processed in hello_messages:
+        return 'Hey there! \nPlease upload your MCQ image to find the answer. Remember image should have 1 MCQ at a ' \
+               'time. Dont forget to share it with your friends '
     if 'how are you' in processed:
         return 'I am good!'
     if 'i love python' in processed:
         return 'remember to subscribe'
-    return 'I do not understand. Please write something else'
+    return 'I do not understand. \nPlease upload your MCQ image to find the answer. Remember image should have 1 MCQ ' \
+           'at a time. Dont forget to share it with your friends '
 
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
