@@ -13,3 +13,5 @@ GEMINI_API_KEY={GEMINI_API_KEY}
 Run the main.py file
 
 This telegram bot is live at ```@helpmcq_bot``` on Telegram
+
+![image](https://github.com/user-attachments/assets/95024214-ebcb-4c8f-ba71-5ce83d2d16c9)
