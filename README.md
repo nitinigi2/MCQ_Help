@@ -3,6 +3,7 @@
 Setup steps:
 1. pip install google-generativeai Pillow requests python-dotenv
 2. pip install python-dotenv python-telegram-bot
+3. pip install mysql-connector-python aiomysql
 3. Create a .env file and add below things
 ```
 BOT_TOKEN={TELEGRAM_BOT_TOKEN}

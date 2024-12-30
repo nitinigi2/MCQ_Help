@@ -87,7 +87,8 @@ def extract_answer_and_explanation(input_string):
     try:
         # Extract the answer using regex (make it more robust to handle unexpected spaces or variations)
         answer_match = re.search(r'\*\*Answer:\*\*\s*([a-zA-Z])', input_string)
-        answer = answer_match.group(1) if answer_match else "No Answer Found"
+        answer = answer_match.group(1) if answer_match else "Could not determine the answer. Please read the " \
+                                                            "explanation "
 
         # Extract the explanation using regex
         try:

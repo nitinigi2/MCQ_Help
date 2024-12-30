@@ -8,6 +8,7 @@ import logging
 from concurrent.futures import ThreadPoolExecutor
 from telegram.error import TelegramError
 import asyncio
+from db_operation import save_user
 
 total_users_joined = 0  # Counter for total users
 
@@ -41,10 +42,24 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     total_users_joined += 1  # Increment the total count
 
+    user = update.effective_user
+    chat = update.effective_chat
+
+    # Store user information asynchronously in the MySQL database
+    asyncio.create_task(save_user(
+        user_id=user.id,
+        username=user.username,
+        first_name=user.first_name,
+        last_name=user.last_name,
+        chat_id=chat.id,
+    ))
+
     log_user_info(update, 'start')
 
     print(f"Total users joined so far: {total_users_joined}")
-    await update.message.reply_text('Hello! Thanks for chatting with me')
+    await update.message.reply_text('Hello! Thanks for chatting with me. \nUpload your MCQ image to find the answer. '
+                                    '\nRemember image should have 1 MCQ at a time. Dont forget to share it with your '
+                                    'friends')
 
 
 async def description_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -54,7 +69,7 @@ async def description_command(update: Update, context: ContextTypes.DEFAULT_TYPE
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     log_user_info(update, 'help')
-    await update.message.reply_text('Hello! I am your Helper bot. Upload your MCQ image to find the answer. Remember '
+    await update.message.reply_text('Hello! I am your Helper bot. \nUpload your MCQ image to find the answer. Remember '
                                     'image should have 1 MCQ at a time. Dont forget to share it with your friends')
 
 
