@@ -8,7 +8,7 @@ import logging
 from concurrent.futures import ThreadPoolExecutor
 from telegram.error import TelegramError
 import asyncio
-from db_operation import save_user, can_upload_image
+from db_operation import save_user, can_upload_image, update_last_usage_timestamp
 
 total_users_joined = 0  # Counter for total users
 
@@ -32,6 +32,8 @@ def log_user_info(update: Update, commandName):
     user = update.effective_user
     user_name = user.first_name if user.first_name else "Unknown"
     user_username = user.username if user.username else "No Username"
+
+    asyncio.create_task(update_last_usage_timestamp(user.id))
 
     # Log the information
     print(f"User joined: Name = {user_name}, Username = {user_username}, ID = {user.id}, commandName = {commandName}")

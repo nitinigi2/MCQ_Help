@@ -3,6 +3,7 @@ import os
 from dotenv import load_dotenv
 import aiomysql
 from datetime import date
+from datetime import datetime
 
 # Load environment variables
 load_dotenv()
@@ -32,18 +33,50 @@ async def save_user(user_id, username, first_name, last_name, chat_id):
         connection = await get_db_connection()
         cursor = await connection.cursor()
 
-        # Insert user data into the database
-        await cursor.execute(
-            "INSERT INTO users (user_id, username, first_name, last_name, chat_id) VALUES (%s, %s, %s, %s, %s)",
-            (user_id, username, first_name, last_name, chat_id)
-        )
+        # Get the current timestamp
+        last_usage_timestamp = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
+
+        # Check if the user already exists in the database
+        await cursor.execute("SELECT COUNT(*) FROM users WHERE user_id = %s", (user_id,))
+        user_exists = await cursor.fetchone()
+
+        if user_exists[0] > 0:
+            # If the user exists, update their data
+            await update_last_usage_timestamp(user_id)
+        else:
+            # Insert new user data into the database
+            await cursor.execute(
+                "INSERT INTO users (user_id, username, first_name, last_name, chat_id, last_usage_timestamp) "
+                "VALUES (%s, %s, %s, %s, %s, %s)",
+                (user_id, username, first_name, last_name, chat_id, last_usage_timestamp)
+            )
 
         await cursor.close()
         connection.close()
     except Exception as e:
         # Print the exception (you can log this instead)
         print(f"Failed to save user info to the database: {e}")
-        # Don't raise the exception, just print the error
+
+
+async def update_last_usage_timestamp(user_id):
+    try:
+        connection = await get_db_connection()
+        cursor = await connection.cursor()
+
+        # Get the current timestamp
+        last_usage_timestamp = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
+
+        # Update the `last_usage_timestamp` for the given user
+        await cursor.execute(
+            "UPDATE users SET last_usage_timestamp = %s WHERE user_id = %s",
+            (last_usage_timestamp, user_id)
+        )
+
+        await cursor.close()
+        connection.close()
+    except Exception as e:
+        # Print the exception (you can log this instead)
+        print(f"Failed to update last usage timestamp for user {user_id}: {e}")
 
 
 # Function to check and update daily upload limit
