@@ -8,7 +8,7 @@ import logging
 from concurrent.futures import ThreadPoolExecutor
 from telegram.error import TelegramError
 import asyncio
-from db_operation import save_user
+from db_operation import save_user, can_upload_image
 
 total_users_joined = 0  # Counter for total users
 
@@ -119,10 +119,15 @@ async def error(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def handle_image(update: Update, context):
+    user = update.effective_user
     log_user_info(update, 'image')
     """Handles incoming images and processes them using Gemini."""
     try:
         print(f'User({update.message.chat.id}): "username": "{update.message.from_user.first_name}"')
+        # Check if the user can upload more images
+        if not await can_upload_image(user.id):
+            await update.message.reply_text("You have reached your daily limit of 10 uploads. Try again tomorrow!")
+            return
         file = await update.message.effective_attachment[-1].get_file()  # Get the highest resolution image
         await update.message.reply_text("Processing image...")
         # Submit the image processing task to the executor
@@ -138,7 +143,15 @@ async def process_image(update, image_url):
     if answer is None or answer == 'error':
         await update.message.reply_text("An error occurred while processing the image. Please try again later")
     else:
-        await update.message.reply_text(f"Answer: {answer}\n\nExplanation: {explanation}")
+        full_message = f"Answer: {answer}\n\nExplanation: {explanation}"
+        # Telegram's max message length
+        MAX_MESSAGE_LENGTH = 4096
+        # Split the message into smaller chunks if it's too long
+        if len(full_message) > MAX_MESSAGE_LENGTH:
+            for i in range(0, len(full_message), MAX_MESSAGE_LENGTH):
+                await update.message.reply_text(full_message[i:i + MAX_MESSAGE_LENGTH])
+        else:
+            await update.message.reply_text(full_message)
 
 
 if __name__ == '__main__':

@@ -103,13 +103,3 @@ def extract_answer_and_explanation(input_string):
 
     return answer, explanation
 
-#
-# str = """**Answer:** c
-#
-# **Explanation:**  LED monitors are the most energy-efficient among the given options (LCD and CRT). CRT (Cathode Ray Tube) monitors are known for their high power consumption. LED monitors are a type of LCD but use a more efficient backlight system, making them consume less power. Therefore, 'LED' is the correct choice for the monitor that consumes the least power.
-# """
-#
-# result = extract_answer_and_explanation(str)
-# print("Answer:", result["Answer"])
-# print("Explanation:", result["Explanation"])
-
