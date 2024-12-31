@@ -1,10 +1,11 @@
-import google.generativeai as genai
-from PIL import Image
-from io import BytesIO
-import requests
-from dotenv import load_dotenv
 import os
 import re
+from io import BytesIO
+
+import google.generativeai as genai
+import requests
+from PIL import Image
+from dotenv import load_dotenv
 
 load_dotenv()
 GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY')
@@ -58,22 +59,34 @@ def find_mcq_answer_gemini_url(image_in_bytes):
 
         # Define the prompt for the Gemini model
         prompt = [
-            "**Task:** I have an image containing information and a multiple-choice question based on its content. "
-            "Please analyze the image thoroughly, extract meaningful information, and identify the most appropriate "
-            "answer from the given options. Use the extracted data, contextual clues, and logical reasoning to select "
-            "the correct choice.",
-            image,
-            "**Output:**",
-            "**Answer:** <letter of the correct answer>",
-            "**Explanation:** (Optional) A brief explanation of why this is the correct answer in fewer words."
-        ]
+            "**Task:** Analyze the image below, which contains a question (or a multiple-choice question). "
+            "The text may be blurry, unclear, or ambiguous. "
+            "Provide your best interpretation, explicitly stating any assumptions made due to poor image quality or "
+            "ambiguity. "
 
+            "**Output Format:**",
+            "**Question:** [Your formulated question] (If unclear, provide your interpretation in brackets.)",
+            "**Options:** [List all options, regardless of their format (e.g., 1, 2, 3... or A, B, C...). If options "
+            "are unclear, interpret them and note this in brackets. For whitespace-separated options, clearly delimit "
+            "each option using square brackets. "
+            "[Option 1/A/a text] [Option 2/B/b text] [Option 3/C/c text] [Option 4/D/d text] (Add more options if "
+            "needed.)]",
+            "**Explanation:** (Optional) (under 50 words). Provide a concise explanation for your answer(s), "
+            "including: "
+            "Key assumptions made (e.g., due to blurry or ambiguous text). "
+            "How ambiguities were resolved or why no resolution was possible. "
+            "For multiple interpretations, explain each plausible answer.",
+            "**Answer:** [List of your correct answers]",
+            image,
+        ]
         # Configure and use Gemini API (replace with your actual API key)
         genai.configure(api_key=GEMINI_API_KEY)
         model = genai.GenerativeModel("gemini-2.0-flash-exp")  # Use gemini-pro-vision for image input
 
         # Generate text using the Gemini model
         response = model.generate_content(prompt)
+
+        print(response.text)
 
         # Extract answer and explanation from the response
         return extract_answer_and_explanation(response.text)
@@ -86,14 +99,15 @@ def find_mcq_answer_gemini_url(image_in_bytes):
 def extract_answer_and_explanation(input_string):
     try:
         # Extract the answer using regex (make it more robust to handle unexpected spaces or variations)
-        answer_match = re.search(r'\*\*Answer:\*\*\s*([a-zA-Z])', input_string)
-        answer = answer_match.group(1) if answer_match else "Could not determine the answer. Please read the " \
-                                                            "explanation "
+        answer_match = re.search(r"(?<=\*\*Answer:\*\*\s)(.*)", input_string, re.IGNORECASE)
+        answer = answer_match.group(1).strip() \
+            if answer_match else "Could not determine the answer. Please read the explanation "
 
         # Extract the explanation using regex
         try:
             explanation_match = re.search(r'\*\*Explanation:\*\*\s*(.*)', input_string, re.DOTALL)
-            explanation = explanation_match.group(1).strip() if explanation_match else "No Explanation Found. Please try again later."
+            explanation = explanation_match.group(
+                1).strip() if explanation_match else "No Explanation Found. Please try again later."
         except Exception:
             explanation = "No Explanation Found. Please try again later."
 
