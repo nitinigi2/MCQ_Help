@@ -8,7 +8,7 @@ import logging
 from concurrent.futures import ThreadPoolExecutor
 from telegram.error import TelegramError
 import asyncio
-from db_operation import save_user, can_upload_image, update_last_usage_timestamp
+from db_operation import save_user, can_upload_image
 
 total_users_joined = 0  # Counter for total users
 
@@ -33,17 +33,6 @@ def log_user_info(update: Update, commandName):
     user_name = user.first_name if user.first_name else "Unknown"
     user_username = user.username if user.username else "No Username"
 
-    asyncio.create_task(update_last_usage_timestamp(user.id))
-
-    # Log the information
-    print(f"User joined: Name = {user_name}, Username = {user_username}, ID = {user.id}, commandName = {commandName}")
-
-
-async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    global total_users_joined
-
-    total_users_joined += 1  # Increment the total count
-
     user = update.effective_user
     chat = update.effective_chat
 
@@ -55,6 +44,15 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         last_name=user.last_name,
         chat_id=chat.id,
     ))
+
+    # Log the information
+    print(f"User joined: Name = {user_name}, Username = {user_username}, ID = {user.id}, commandName = {commandName}")
+
+
+async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    global total_users_joined
+
+    total_users_joined += 1  # Increment the total count
 
     log_user_info(update, 'start')
 
@@ -79,7 +77,8 @@ async def custom_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text('This is custom command')
 
 
-hello_messages = ["hi", "hello", "who are you", "what can yo do", "what can you do", "who are you", "can you help me"]
+hello_messages = ["hi", "hello", "who are you", "what can yo do", "what can you do", "who are you", "can you help me", "hii", "hey"]
+other_messages = ["no", "yes", "wrong", "wrong answer", ]
 
 
 def handle_response(text: str) -> str:
@@ -92,6 +91,8 @@ def handle_response(text: str) -> str:
         return 'I am good!'
     if 'i love python' in processed:
         return 'remember to subscribe'
+    if processed in other_messages:
+        return 'I am still learning. Please upload your next MCQ image.'
     return 'I do not understand. \nPlease upload your MCQ image to find the answer. Remember image should have 1 MCQ ' \
            'at a time. Dont forget to share it with your friends '
 
@@ -126,7 +127,7 @@ async def handle_image(update: Update, context):
     """Handles incoming images and processes them using Gemini."""
     try:
         print(f'User({update.message.chat.id}): "username": "{update.message.from_user.first_name}"')
-        # Check if the user can upload more images
+        #Check if the user can upload more images
         if not await can_upload_image(user.id):
             await update.message.reply_text("You have reached your daily limit of 10 uploads. Try again tomorrow!")
             return
