@@ -59,6 +59,10 @@ def find_mcq_answer_gemini_url(image_in_bytes):
 
         # Define the prompt for the Gemini model
         prompt = [
+            "**System Instructions:**"
+            "Assume you are teacher with very high knowledge. You need to answer questions in easy human readble "
+            "language. "
+            
             "**Task:** Analyze the image below, which contains a question (or a multiple-choice question). "
             "The text may be blurry, unclear, or ambiguous. "
             "Provide your best interpretation, explicitly stating any assumptions made due to poor image quality or "
@@ -71,7 +75,7 @@ def find_mcq_answer_gemini_url(image_in_bytes):
             "each option using square brackets. "
             "[Option 1/A/a text] [Option 2/B/b text] [Option 3/C/c text] [Option 4/D/d text] (Add more options if "
             "needed.)]",
-            "**Explanation:** (Optional) (under 50 words). Provide a concise explanation for your answer(s), "
+            "**Explanation:** (Optional) (under 100 words). Provide a concise explanation for your answer(s), "
             "including: "
             "Key assumptions made (e.g., due to blurry or ambiguous text). "
             "How ambiguities were resolved or why no resolution was possible. "
