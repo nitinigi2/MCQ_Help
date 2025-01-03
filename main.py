@@ -13,7 +13,7 @@ from db_operation import save_user, can_upload_image
 total_users_joined = 0  # Counter for total users
 
 load_dotenv()
-TOKEN: Final = os.environ.get('BOT_TOKEN')
+TOKEN: Final = os.environ.get('NEW_BOT_TOKEN')
 BOT_USERNAME: Final = os.environ.get('BOT_USERNAME')
 
 # Enable logging
@@ -57,7 +57,7 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     log_user_info(update, 'start')
 
     print(f"Total users joined so far: {total_users_joined}")
-    await update.message.reply_text('Hello! Thanks for chatting with me. \nUpload your MCQ image to find the answer. '
+    await update.message.reply_text('Hello! Thanks for chatting with me. \nUpload your Upload your Multiple choice question(MCQ) image to find the answer. '
                                     '\nRemember image should have 1 MCQ at a time. Dont forget to share it with your '
                                     'friends')
 
@@ -69,7 +69,8 @@ async def description_command(update: Update, context: ContextTypes.DEFAULT_TYPE
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     log_user_info(update, 'help')
-    await update.message.reply_text('Hello! I am your Helper bot. \nUpload your MCQ image to find the answer. Remember '
+    await update.message.reply_text('Hello! I am your Helper bot. \nUpload your Multiple choice question(MCQ) image '
+                                    'to find the answer. \nRemember '
                                     'image should have 1 MCQ at a time. Dont forget to share it with your friends')
 
 
