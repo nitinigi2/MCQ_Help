@@ -93,11 +93,9 @@ def handle_response(text: str) -> str:
     processed: str = text.lower()
 
     if processed in hello_messages:
-        return 'Hi there! 🙌\n Upload an image of a Multiple Choice '
-        'Question (MCQ), and I’ll help you find the answer in no time! \n'
-        '🧠✨⚠️ Quick Tip: '
-        'Make sure the image contains just 1 MCQ at a time for the best results.\n'
-        '💌 Don’t forget to share this bot with your friends—they’ll love it too! 🚀🎉'
+        return 'Hi there! 🙌\n Upload an image of a Multiple Choice Question (MCQ), and I’ll help you find the answer ' \
+               'in no time! \n 🧠✨⚠️ Quick Tip: Make sure the image contains just 1 MCQ at a time for the best ' \
+               'results.\n 💌 Don’t forget to share this bot with your friends—they’ll love it too! 🚀🎉'
     if 'how are you' in processed:
         return 'I am good!'
     if 'i love python' in processed:
