@@ -1,14 +1,16 @@
-from typing import Final
+import asyncio
+import logging
 import os
+from concurrent.futures import ThreadPoolExecutor
+from typing import Final
+
 from dotenv import load_dotenv
 from telegram import Update
-from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
-from gemini_image_process import get_output
-import logging
-from concurrent.futures import ThreadPoolExecutor
 from telegram.error import TelegramError
-import asyncio
+from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
+
 from db_operation import save_user, can_upload_image
+from gemini_image_process import get_output
 
 total_users_joined = 0  # Counter for total users
 
@@ -57,9 +59,11 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     log_user_info(update, 'start')
 
     print(f"Total users joined so far: {total_users_joined}")
-    await update.message.reply_text('Hello! Thanks for chatting with me. \nUpload your Upload your Multiple choice question(MCQ) image to find the answer. '
-                                    '\nRemember image should have 1 MCQ at a time. Dont forget to share it with your '
-                                    'friends')
+    await update.message.reply_text('Hi there! 🙌\n Upload an image of a Multiple Choice '
+                                    'Question (MCQ), and I’ll help you find the answer in no time! \n'
+                                    '🧠✨⚠️ Quick Tip: '
+                                    'Make sure the image contains just 1 MCQ at a time for the best results.\n'
+                                    '💌 Don’t forget to share this bot with your friends—they’ll love it too! 🚀🎉')
 
 
 async def description_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -69,16 +73,19 @@ async def description_command(update: Update, context: ContextTypes.DEFAULT_TYPE
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     log_user_info(update, 'help')
-    await update.message.reply_text('Hello! I am your Helper bot. \nUpload your Multiple choice question(MCQ) image '
-                                    'to find the answer. \nRemember '
-                                    'image should have 1 MCQ at a time. Dont forget to share it with your friends')
+    await update.message.reply_text('Hi there! 🙌\n Upload an image of a Multiple Choice '
+                                    'Question (MCQ), and I’ll help you find the answer in no time! \n'
+                                    '🧠✨⚠️ Quick Tip: '
+                                    'Make sure the image contains just 1 MCQ at a time for the best results.\n'
+                                    '💌 Don’t forget to share this bot with your friends—they’ll love it too! 🚀🎉')
 
 
 async def custom_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text('This is custom command')
 
 
-hello_messages = ["hi", "hello", "who are you", "what can yo do", "what can you do", "who are you", "can you help me", "hii", "hey"]
+hello_messages = ["hi", "hello", "who are you", "what can yo do", "what can you do", "who are you", "can you help me",
+                  "hii", "hey"]
 other_messages = ["no", "yes", "wrong", "wrong answer", ]
 
 
@@ -86,8 +93,11 @@ def handle_response(text: str) -> str:
     processed: str = text.lower()
 
     if processed in hello_messages:
-        return 'Hey there! \nPlease upload your MCQ image to find the answer. Remember image should have 1 MCQ at a ' \
-               'time. Dont forget to share it with your friends '
+        return 'Hi there! 🙌\n Upload an image of a Multiple Choice '
+        'Question (MCQ), and I’ll help you find the answer in no time! \n'
+        '🧠✨⚠️ Quick Tip: '
+        'Make sure the image contains just 1 MCQ at a time for the best results.\n'
+        '💌 Don’t forget to share this bot with your friends—they’ll love it too! 🚀🎉'
     if 'how are you' in processed:
         return 'I am good!'
     if 'i love python' in processed:
@@ -128,7 +138,7 @@ async def handle_image(update: Update, context):
     """Handles incoming images and processes them using Gemini."""
     try:
         print(f'User({update.message.chat.id}): "username": "{update.message.from_user.first_name}"')
-        #Check if the user can upload more images
+        # Check if the user can upload more images
         if not await can_upload_image(user.id):
             await update.message.reply_text("You have reached your daily limit of 10 uploads. Try again tomorrow!")
             return
