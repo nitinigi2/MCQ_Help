@@ -17,6 +17,6 @@ DATABASE_HOST={DB_HOST}
 
 Run the main.py file
 
-This telegram bot is live at ```@QuestionSolverBot``` on Telegram
+This telegram bot is live at ```@MCQSolverBot``` on Telegram
 
 ![image](https://github.com/user-attachments/assets/95024214-ebcb-4c8f-ba71-5ce83d2d16c9)
